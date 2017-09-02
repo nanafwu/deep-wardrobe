@@ -55,7 +55,7 @@ def get_parent_category(category_map, categories):
 
 def update_categories():
     conn = db.make_db_conn()
-    query = "SELECT * FROM shopstyle_product"
+    query = "SELECT * FROM shopstyle_product ORDER BY id"
     s_all = text(query)
     results = conn.execute(s_all).fetchall()
     product_table = db.get_shopstyle_product_table()

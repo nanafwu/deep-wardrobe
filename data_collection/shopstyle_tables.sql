@@ -25,3 +25,14 @@ CREATE TABLE shopstyle_collection_product (
        product_id BIGINT REFERENCES shopstyle_product(id),
        PRIMARY KEY (collection_id, product_id)
 );
+
+/**
+Useful Queries
+**/
+
+SELECT parent_category, count(1)
+FROM shopstyle_product
+WHERE
+parent_category IS NOT NULL
+GROUP BY parent_category
+ORDER BY count(1) DESC
