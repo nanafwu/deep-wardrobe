@@ -17,7 +17,8 @@ CREATE TABLE shopstyle_product(
        product_name VARCHAR(2000),
        image_url VARCHAR(5000) NOT NULL,
        categories VARCHAR(100)[],
-       parent_category VARCHAR(100) REFERENCES shopstyle_category(id)
+       parent_category VARCHAR(100) REFERENCES shopstyle_category(id),
+       create_time TIMESTAMP DEFAULT now()
 );
 
 CREATE TABLE shopstyle_collection_product (

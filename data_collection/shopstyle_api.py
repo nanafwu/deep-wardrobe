@@ -16,7 +16,7 @@ from sqlalchemy.sql import select, text
 import db as db
 import cnfg
 import sys
-import getopt
+import argparse
 
 config = cnfg.load(".metis_config")
 
@@ -53,26 +53,7 @@ def get_parent_category(category_map, categories):
     return parent_category
 
 
-def update_categories():
-    conn = db.make_db_conn()
-    query = "SELECT * FROM shopstyle_product ORDER BY id"
-    s_all = text(query)
-    results = conn.execute(s_all).fetchall()
-    product_table = db.get_shopstyle_product_table()
-    category_map = db.get_category_parent_mapping(conn)
-    for i, prod in enumerate(results):
-        id = prod[0]
-        categories = prod[3]
-        parent_category = get_parent_category(category_map, categories)
-        print(i, ' - ', id, ': ', categories, ' - ', parent_category)
-        stmt = product_table.update().\
-            where(product_table.c.id == id).\
-            values(parent_category=parent_category)
-
-        conn.execute(stmt)
-
-
-def parse_collection_product(prod, category_map):
+def parse_product(prod, category_map):
     id = prod['id']
     name = prod['name']
     image_url = prod['image']['sizes']['Original']['url']
@@ -106,7 +87,7 @@ def store_collections(api_url):
                 print('Already inserted collection ', collection['id'])
                 print(e)
 
-            collection_products = [parse_collection_product(
+            collection_products = [parse_product(
                 prod, category_map) for prod in p['products']]
             print('Found {} products: {}'.format(
                 len(collection_products), collection_products))
@@ -125,6 +106,53 @@ def store_collections(api_url):
                     print('Already inserted collection product id',
                           collection_product_id)
                     print(e)
+
+
+def paginate_shopstyle_products(url, offset, category_map):
+    api_url = url + '&offset=' + str(offset)
+    products = get_api_json(api_url)['products']
+    products = [parse_product(
+                prod, category_map) for prod in products]
+    return products
+
+
+def store_shopstyle_products(product_type):
+    api_url = ''
+    if product_type == 'dress':
+        api_url = 'http://api.shopstyle.com/api/v2/products?pid=shopstyle&fts=dress&limit=50'
+    elif product_type == 'jeans':
+        api_url = 'http://api.shopstyle.com/api/v2/products?pid=shopstyle&fts=women+jeans&limit=50'
+    elif product_type == 'jacket':
+        api_url = 'http://api.shopstyle.com/api/v2/products?pid=shopstyle&fts=women+jacket&limit=50'
+    elif product_type == 'outerwear':
+        api_url = 'http://api.shopstyle.com/api/v2/products?pid=shopstyle&fts=women+outerwear&limit=50'
+    elif product_type == 'pants':
+        api_url = 'http://api.shopstyle.com/api/v2/products?pid=shopstyle&fts=women+pants&limit=50'
+    elif product_type == 'shorts':
+        api_url = 'http://api.shopstyle.com/api/v2/products?pid=shopstyle&fts=women+shorts&limit=50'
+    elif product_type == 'skirts':
+        api_url = 'http://api.shopstyle.com/api/v2/products?pid=shopstyle&fts=skirts&limit=50'
+    elif product_type == 'sweaters':
+        api_url = 'http://api.shopstyle.com/api/v2/products?pid=shopstyle&fts=women+sweater&limit=50'
+    elif product_type == 'sweatshirt':
+        api_url = 'http://api.shopstyle.com/api/v2/products?pid=shopstyle&fts=women+sweatshirts&limit=50'
+    elif product_type == 'tops':
+        api_url = 'http://api.shopstyle.com/api/v2/products?pid=shopstyle&fts=women+tops&limit=50'
+
+    conn = db.make_db_conn()
+    product_table = db.get_shopstyle_product_table()
+    category_map = db.get_category_parent_mapping(conn)
+    offset = 0
+    while offset <= 4000:
+        print('Getting {} batch {}'.format(product_type, offset))
+        product_batch = paginate_shopstyle_products(
+            api_url, offset, category_map)
+        for p in product_batch:
+            try:
+                conn.execute(product_table.insert(), p)
+            except IntegrityError:
+                print('product ', p['id'], ' already exists')
+        offset += 50
 
 
 def store_featured_looks():
@@ -155,15 +183,21 @@ def store_shopstyle_categories():
 
 
 def main(argv):
-    opts, args = getopt.getopt(argv, "p:", ["process="])
-    for opt, arg in opts:
-        if opt in ('-p', '--process'):
-            if arg == 'category':
-                store_shopstyle_categories()
-            if arg == 'featured-looks':
-                store_featured_looks()
-            if arg == 'update':
-                update_categories()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--process", dest="process",
+                        help='process to run')
+    parser.add_argument("--type", dest="type",
+                        help='subcategory in process')
+    args = parser.parse_args(argv)
+    process = args.process
+
+    if process == 'category':
+        store_shopstyle_categories()
+    if process == 'featured-looks':
+        store_featured_looks()
+    if process == 'product':
+        category = args.type
+        store_shopstyle_products(category)
 
 
 if __name__ == "__main__":

@@ -55,9 +55,8 @@ def get_shopstyle_collection_product_table():
 def get_category_parent_mapping(conn):
     cat_mapping = {}
     parent_category_query_results = set(
-        ['womens-athletic-clothes', 'dresses', 'jeans', 'jackets',
-         'womens-outerwear', 'womens-pants', 'shorts', 'skirts', 'sweaters',
-         'sweatshirts', 'womens-tops'])
+        ['dresses', 'jeans', 'jackets', 'womens-outerwear', 'womens-pants',
+         'shorts', 'skirts', 'sweaters', 'sweatshirts', 'womens-tops'])
     for parent_cat in parent_category_query_results:
         cat_mapping[parent_cat] = parent_cat
 
@@ -68,3 +67,11 @@ def get_category_parent_mapping(conn):
         if parent_cat in parent_category_query_results:
             cat_mapping[cat] = parent_cat
     return cat_mapping
+
+
+def get_product_images():
+    conn = make_db_conn()
+    query = "SELECT id, image_url, parent_category FROM shopstyle_product WHERE parent_category IS NOT NULL ORDER BY id"
+    s_all = text(query)
+    products_result = conn.execute(s_all).fetchall()
+    return products_result
