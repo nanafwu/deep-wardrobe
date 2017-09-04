@@ -9,10 +9,7 @@ https://www.shopstyle.com/api/v2/posts?limit=6&maxNumProducts=4&offset=6&pid=sho
 
 import requests
 import json
-import re
-from time import sleep
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.sql import select, text
 import db as db
 import cnfg
 import sys

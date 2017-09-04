@@ -71,7 +71,7 @@ def get_category_parent_mapping(conn):
 
 def get_product_images():
     conn = make_db_conn()
-    query = "SELECT id, image_url, parent_category FROM shopstyle_product WHERE parent_category IS NOT NULL ORDER BY id"
+    query = "SELECT id, image_url, parent_category FROM shopstyle_product WHERE parent_category IS NOT NULL"
     s_all = text(query)
     products_result = conn.execute(s_all).fetchall()
     return products_result
