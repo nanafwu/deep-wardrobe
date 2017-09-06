@@ -77,6 +77,15 @@ def get_product_images():
     return products_result
 
 
+def get_product_images_by_category(category):
+    conn = make_db_conn()
+    query = "SELECT id, image_url, parent_category FROM shopstyle_product WHERE parent_category = '{}' LIMIT 2000".format(
+        category)
+    s_all = text(query)
+    products_result = conn.execute(s_all).fetchall()
+    return products_result
+
+
 def get_authors():
     conn = make_db_conn()
     query = "SELECT DISTINCT(author_handle) FROM shopstyle_collection"
