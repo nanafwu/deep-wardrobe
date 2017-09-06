@@ -158,6 +158,15 @@ def store_featured_looks():
     store_collections(featured_looks_api_url)
 
 
+def store_author_collections():
+    authors = db.get_authors()
+    for author_handle in authors:
+        print('Getting collections from ', author_handle)
+        collections_api_url = 'https://www.shopstyle.com/api/v2/posts?limit=1000' + \
+            '&maxNumProducts=50&offset=0&pid=shopstyle&userId=' + author_handle
+        store_collections(collections_api_url)
+
+
 def store_shopstyle_categories():
     categories_api_url = 'http://api.shopstyle.com/api/v2/categories?pid=' + \
         config['shopstyle']['api_key']
@@ -192,6 +201,8 @@ def main(argv):
         store_shopstyle_categories()
     if process == 'featured-looks':
         store_featured_looks()
+    if process == 'author':
+        store_author_collections()
     if process == 'product':
         category = args.type
         store_shopstyle_products(category)

@@ -75,3 +75,27 @@ def get_product_images():
     s_all = text(query)
     products_result = conn.execute(s_all).fetchall()
     return products_result
+
+
+def get_authors():
+    conn = make_db_conn()
+    query = "SELECT DISTINCT(author_handle) FROM shopstyle_collection"
+    s_all = text(query)
+    authors_result = [author[0] for author in conn.execute(s_all).fetchall()]
+    return authors_result
+
+
+def get_collection_products():
+    conn = make_db_conn()
+    query = """SELECT cp.collection_id, p.id, p.parent_category,
+               c.author_handle, p.product_name
+               FROM shopstyle_collection_product cp, shopstyle_product p,
+                    shopstyle_collection c
+               WHERE
+               p.id = cp.product_id
+               AND c.id = cp.collection_id
+               AND p.parent_category IS NOT NULL
+            """
+    s_all = text(query)
+    products_result = conn.execute(s_all).fetchall()
+    return products_result

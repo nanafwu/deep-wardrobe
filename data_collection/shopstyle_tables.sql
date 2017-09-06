@@ -37,3 +37,13 @@ WHERE
 parent_category IS NOT NULL
 GROUP BY parent_category
 ORDER BY count(1) DESC
+
+-- Get all categorized products in collections
+
+SELECT cp.collection_id, c.author_handle, p.id, p.parent_category, p.product_name
+FROM shopstyle_collection_product cp, shopstyle_product p, shopstyle_collection c
+WHERE
+p.id = cp.product_id
+AND c.id = cp.collection_id
+AND p.parent_category IS NOT NULL
+ORDER BY cp.collection_id

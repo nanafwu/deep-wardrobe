@@ -14,7 +14,7 @@ def get_img(product):
     url = product[1]
     id = product[0]
     print('Getting ', str(id), ': ', parent_category, ', ', url)
-    path = 'data/' + parent_category + '/' + str(id) + '.jpg'
+    path = 'data-all/train/' + parent_category + '/' + str(id) + '.jpg'
     urllib.request.urlretrieve(url, path)
 
 
