@@ -164,7 +164,7 @@ def main():
     print('Finding Unfashionable Clothing Pairs...')
     valid_pairs = make_valid_category_pair_map()
     unfashionable_product_pairs = generate_random_pairs(
-        valid_pairs, number_valid_pairs)
+        valid_pairs, 12000)
 
     print('Writing to TSVs')
     write_tsv(product_pairs, 'data-pairs/valid_clothing_pairs.tsv')
