@@ -6,38 +6,31 @@ import csv
 import random
 
 
+def make_valid_category_pair_map():
+    return [('dresses', 'jackets'),
+            ('jeans', 'jackets'),
+            ('jeans', 'sweaters'),
+            ('jeans', 'sweatshirts'),
+            ('jeans', 'womens-tops'),
+            ('womens-pants', 'jackets'),
+            ('womens-pants', 'sweaters'),
+            ('womens-pants', 'sweatshirts'),
+            ('womens-pants', 'womens-tops'),
+            ('shorts', 'jackets'),
+            ('shorts', 'sweaters'),
+            ('shorts', 'sweatshirts'),
+            ('shorts', 'womens-tops'),
+            ('skirts', 'jackets'),
+            ('skirts', 'sweaters'),
+            ('skirts', 'sweatshirts'),
+            ('skirts', 'womens-tops'),
+            ('sweaters', 'jackets'),
+            ('sweatshirts', 'jackets'),
+            ('womens-tops', 'jackets')]
+
+
 def make_category_pair_map():
-    product_combinations = [('dresses', 'jackets'),
-                            ('dresses', 'womens-outerwear'),
-                            ('dresses', 'sweaters'),
-                            ('jeans', 'jackets'),
-                            ('jeans', 'womens-outerwear'),
-                            ('jeans', 'sweaters'),
-                            ('jeans', 'sweatshirts'),
-                            ('jeans', 'womens-tops'),
-                            ('womens-pants', 'jackets'),
-                            ('womens-pants', 'womens-outerwear'),
-                            ('womens-pants', 'sweaters'),
-                            ('womens-pants', 'sweatshirts'),
-                            ('womens-pants', 'womens-tops'),
-                            ('shorts', 'jackets'),
-                            ('shorts', 'womens-outerwear'),
-                            ('shorts', 'sweaters'),
-                            ('shorts', 'sweatshirts'),
-                            ('shorts', 'womens-tops'),
-                            ('skirts', 'jackets'),
-                            ('skirts', 'womens-outerwear'),
-                            ('skirts', 'sweaters'),
-                            ('skirts', 'sweatshirts'),
-                            ('skirts', 'womens-tops'),
-                            ('sweaters', 'womens-outerwear'),
-                            ('sweaters', 'jackets'),
-                            ('sweatshirts', 'womens-outerwear'),
-                            ('sweatshirts', 'jackets'),
-                            ('womens-tops', 'womens-outerwear'),
-                            ('womens-tops', 'sweaters'),
-                            ('womens-tops', 'sweatshirts'),
-                            ('womens-tops', 'jackets')]
+    product_combinations = make_valid_category_pair_map()
     category_pair = defaultdict(set)
     for combo in product_combinations:
         category_pair[combo[0]].add(combo[1])
@@ -66,8 +59,7 @@ def make_invalid_category_pair_map():
                             ('sweaters', 'sweaters'),
                             ('sweatshirts', 'sweatshirts'),
                             ('womens-tops', 'womens-tops'),
-                            ('jackets', 'jackets'),
-                            ('womens-outerwear', 'womens-outerwear')]
+                            ('jackets', 'jackets')]
     return invalid_combinations
 
 
@@ -76,10 +68,9 @@ def is_valid_combination(valid_pairs, item1_type, item2_type):
     return is_match
 
 
-def generate_invalid_pairs(number_pairs):
-    invalid_pairs = make_invalid_category_pair_map()
-    total = len(invalid_pairs)  # 21
-    categories = ['dresses', 'jeans', 'jackets', 'womens-outerwear',
+def generate_random_pairs(pair_categories, number_pairs):
+    total = len(pair_categories)
+    categories = ['dresses', 'jeans', 'jackets',
                   'womens-pants', 'shorts', 'skirts', 'sweaters',
                   'sweatshirts', 'womens-tops']
 
@@ -88,27 +79,28 @@ def generate_invalid_pairs(number_pairs):
         category_to_product_ids[
             category] = db.get_product_images_by_category(category)
 
-    invalid_product_pairs = []
-    products_used = set([])
+    product_pairs = []
+    counter = 0
     for i in range(number_pairs):
         # rotate amongst invalid combinations
-        curr_invalid_combo = invalid_pairs[i % total]
-        item1_type = curr_invalid_combo[0]
-        item2_type = curr_invalid_combo[1]
-        item1_product_id = random.choice(
-            category_to_product_ids[item1_type])[0]
-        item2_product_id = random.choice(
-            category_to_product_ids[item2_type])[0]
-        products_used.add(item1_product_id)
-        products_used.add(item2_product_id)
+        curr_combo = pair_categories[i % total]
+        item1_type = curr_combo[0]
+        item2_type = curr_combo[1]
+        item1 = random.choice(category_to_product_ids[item1_type])
+        item2 = random.choice(category_to_product_ids[item2_type])
+        item1_product_id = item1[0]
+        item2_product_id = item2[0]
+        item1_image = item1[1]
+        item2_image = item2[1]
 
-        invalid_product_pairs.append(
-            ('invalid_collection',
-             item1_product_id, item1_type,
-             item2_product_id, item2_type))
+        product_pairs.append(
+            (counter, 'invalid_collection',
+             item1_product_id, item1_type, item1_image,
+             item2_product_id, item2_type, item2_image))
+        counter += 1
 
-    random.shuffle(invalid_product_pairs)
-    return invalid_product_pairs, products_used
+    random.shuffle(product_pairs)
+    return product_pairs
 
 
 def get_product_pairs():
@@ -119,11 +111,14 @@ def get_product_pairs():
     collection_to_products = defaultdict(list)
     collection_products_db = db.get_collection_products()
     for row in collection_products_db:
-        prod_and_category = (row[1], row[2])
-        collection_to_products[row[0]].append(prod_and_category)
+        product_id = row[1]
+        category = row[2]
+        image_url = row[-1]
+        p = (product_id, category, image_url)
+        collection_to_products[row[0]].append(p)
 
     product_pairs = []
-    products_used = set([])
+    counter = 0
     for collection_id, collection_products in collection_to_products.items():
         # print('collection {}: {}'.format(collection_id, collection_products))
         product_combinations = combinations(collection_products, 2)
@@ -132,17 +127,17 @@ def get_product_pairs():
             item2_product_id = combo[1][0]
             item1_type = combo[0][1]
             item2_type = combo[1][1]
+            item1_image = combo[0][2]
+            item2_image = combo[1][2]
             if is_valid_combination(valid_pairs, item1_type, item2_type):
-                products_used.add(item1_product_id)
-                products_used.add(item2_product_id)
-
                 product_pairs.append(
-                    (collection_id,
-                     item1_product_id, item1_type,
-                     item2_product_id, item2_type))
+                    (counter, collection_id,
+                     item1_product_id, item1_type, item1_image,
+                     item2_product_id, item2_type, item2_image))
+                counter += 1
 
     random.shuffle(product_pairs)
-    return product_pairs, products_used
+    return product_pairs
 
 
 def write_tsv(rows, file_path):
@@ -154,25 +149,29 @@ def write_tsv(rows, file_path):
 
 
 def main():
-    product_pairs, products_used = get_product_pairs()
+    product_pairs = get_product_pairs()
     number_valid_pairs = len(product_pairs)
-    print('Found {} pairs of clothing in {} products'.format(
-        number_valid_pairs, len(products_used)))
+    print('Found {} pairs of clothing'.format(
+        number_valid_pairs))
 
     # Get same number of invalid pairs
-    invalid_product_pairs, invalid_products_used = generate_invalid_pairs(
-        number_valid_pairs)
+    print('Finding Invalid Clothing Pairs...')
+    invalid_pairs = make_invalid_category_pair_map()
+    invalid_product_pairs = generate_random_pairs(
+        invalid_pairs, number_valid_pairs)
 
-    products_used_rows = [[p] for p in products_used]
-    invalid_products_used_rows = [[p] for p in invalid_products_used]
+    # Get same number of 'unfashionable' pairs
+    print('Finding Unfashionable Clothing Pairs...')
+    valid_pairs = make_valid_category_pair_map()
+    unfashionable_product_pairs = generate_random_pairs(
+        valid_pairs, number_valid_pairs)
 
     print('Writing to TSVs')
     write_tsv(product_pairs, 'data-pairs/valid_clothing_pairs.tsv')
-    write_tsv(list(products_used_rows), 'data-pairs/valid_product_ids.tsv')
-
+    write_tsv(unfashionable_product_pairs,
+              'data-pairs/unfashionable_clothing_pairs.tsv')
     write_tsv(invalid_product_pairs, 'data-pairs/invalid_clothing_pairs.tsv')
-    write_tsv(list(invalid_products_used_rows),
-              'data-pairs/invalid_product_ids.tsv')
+
 
 if __name__ == '__main__':
     main()

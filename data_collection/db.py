@@ -79,7 +79,7 @@ def get_product_images():
 
 def get_product_images_by_category(category):
     conn = make_db_conn()
-    query = "SELECT id, image_url, parent_category FROM shopstyle_product WHERE parent_category = '{}' LIMIT 2000".format(
+    query = "SELECT id, image_url, parent_category FROM shopstyle_product WHERE parent_category = '{}' LIMIT 4000".format(
         category)
     s_all = text(query)
     products_result = conn.execute(s_all).fetchall()
@@ -97,13 +97,21 @@ def get_authors():
 def get_collection_products():
     conn = make_db_conn()
     query = """SELECT cp.collection_id, p.id, p.parent_category,
-               c.author_handle, p.product_name
+               c.author_handle, p.product_name, p.image_url
                FROM shopstyle_collection_product cp, shopstyle_product p,
                     shopstyle_collection c
                WHERE
                p.id = cp.product_id
                AND c.id = cp.collection_id
                AND p.parent_category IS NOT NULL
+               AND c.id IN (
+                    SELECT cp.collection_id
+                    FROM shopstyle_collection_product cp, shopstyle_product p
+                    WHERE p.id = cp.product_id
+                    AND p.parent_category IS NOT NULL
+                    GROUP BY cp.collection_id
+                    HAVING count(1) < 8
+               )
             """
     s_all = text(query)
     products_result = conn.execute(s_all).fetchall()

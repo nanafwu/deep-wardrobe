@@ -82,7 +82,6 @@ def store_collections(api_url):
                 conn.execute(collection_table.insert(), collection)
             except IntegrityError as e:
                 print('Already inserted collection ', collection['id'])
-                print(e)
 
             collection_products = [parse_product(
                 prod, category_map) for prod in p['products']]
@@ -94,7 +93,7 @@ def store_collections(api_url):
                     conn.execute(product_table.insert(), cp)
                 except IntegrityError as e:
                     print('Already product id', cp['id'])
-                    print(e)
+
                 try:
                     collection_product_id = {'collection_id': collection['id'],
                                              'product_id': cp['id']}
@@ -102,7 +101,6 @@ def store_collections(api_url):
                 except IntegrityError as e:
                     print('Already inserted collection product id',
                           collection_product_id)
-                    print(e)
 
 
 def paginate_shopstyle_products(url, offset, category_map):
@@ -159,9 +157,9 @@ def store_featured_looks():
 
 
 def store_author_collections():
-    authors = db.get_authors()[34:]
+    authors = db.get_authors()[120:]
     for i, author_handle in enumerate(authors):
-        print(i, ' - Getting collections from ', author_handle)
+        print(i, ' - Getting collections from author ', author_handle)
         collections_api_url = 'https://www.shopstyle.com/api/v2/posts?limit=1000' + \
             '&maxNumProducts=50&offset=0&pid=shopstyle&userId=' + author_handle
         store_collections(collections_api_url)
