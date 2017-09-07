@@ -31,11 +31,9 @@ def save_shopstyle_products():
     Pool(10).map(get_img, parsed_products)
 
 
-def save_paired_combinations():
-    dir_path = 'data-pairs/valid/'
-    valid_product_pairs_file = 'data-pairs/valid_clothing_pairs.tsv'
+def get_tsv_images(filepath, dir_path):
     products = []
-    with open(valid_product_pairs_file, 'r') as tsvfile:
+    with open(filepath, 'r') as tsvfile:
         tsvreader = csv.reader(tsvfile, delimiter='\t')
         for row in tsvreader:
             product1 = row[2]
@@ -47,7 +45,18 @@ def save_paired_combinations():
             path2 = dir_path + pair_id + '_' + str(product2) + '.jpg'
             products.append((product1, product1_image, path1))
             products.append((product2, product2_image, path2))
-    Pool(10).map(get_img, products)
+    return products
+
+
+def save_paired_combinations():
+    valid_dir_path = 'data-pairs/valid/'
+    valid_product_pairs_file = 'data-pairs/valid_clothing_pairs.tsv'
+
+    unfashionable_dir_path = 'data-pairs/unfashionable/'
+    unfashionable_product_pairs_file = 'data-pairs/unfashionable_clothing_pairs.tsv'
+    unfashionable_products = get_tsv_images(
+        unfashionable_product_pairs_file, unfashionable_dir_path)
+    Pool(4).map(get_img, unfashionable_products)
 
 
 def main(argv):
