@@ -49,14 +49,27 @@ def get_tsv_images(filepath, dir_path):
 
 
 def save_paired_combinations():
+    # Valid
     valid_dir_path = 'data-pairs/valid/'
-    valid_product_pairs_file = 'data-pairs/valid_clothing_pairs.tsv'
+    valid_product_pairs_file = 'data-pairs/small_valid_clothing_pairs.tsv'
+    valid_products = get_tsv_images(
+        valid_product_pairs_file, valid_dir_path)
+    print('Getting valid clothing images ...')
+    Pool(4).map(get_img, valid_products)
 
+    # Invalid
+    invalid_dir_path = 'data-pairs/invalid/'
+    invalid_product_pairs_file = 'data-pairs/small_invalid_clothing_pairs.tsv'
+    invalid_products = get_tsv_images(
+        invalid_product_pairs_file, invalid_dir_path)
+    print('Getting invalid clothing images ...')
+    Pool(4).map(get_img, invalid_products)
+
+    # Unfashionable
     unfashionable_dir_path = 'data-pairs/unfashionable/'
     unfashionable_product_pairs_file = 'data-pairs/unfashionable_clothing_pairs.tsv'
     unfashionable_products = get_tsv_images(
         unfashionable_product_pairs_file, unfashionable_dir_path)
-    Pool(4).map(get_img, unfashionable_products)
 
 
 def main(argv):
