@@ -21,7 +21,7 @@ def get_img(product):
 def save_shopstyle_products():
     products = db.get_product_images()
     parsed_products = []
-    dir_path = 'data-all/train/'
+    dir_path = 'data-all/'
     for product in products:
         parent_category = product[-1]
         url = product[1]

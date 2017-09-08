@@ -56,7 +56,8 @@ def get_category_parent_mapping(conn):
     cat_mapping = {}
     parent_category_query_results = set(
         ['dresses', 'jeans', 'jackets', 'womens-outerwear', 'womens-pants',
-         'shorts', 'skirts', 'sweaters', 'sweatshirts', 'womens-tops'])
+         'shorts', 'skirts', 'sweaters', 'sweatshirts', 'womens-tops',
+         'womens-shoes', 'jewelry', 'handbags'])
     for parent_cat in parent_category_query_results:
         cat_mapping[parent_cat] = parent_cat
 
@@ -66,6 +67,8 @@ def get_category_parent_mapping(conn):
     for cat, parent_cat in all_categories_result:
         if parent_cat in parent_category_query_results:
             cat_mapping[cat] = parent_cat
+        elif cat == 'sunglasses' or cat == 'hats':
+            cat_mapping[cat] = cat
     return cat_mapping
 
 

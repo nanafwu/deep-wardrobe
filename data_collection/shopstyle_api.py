@@ -14,6 +14,7 @@ import db as db
 import cnfg
 import sys
 import argparse
+from sqlalchemy.sql import text
 
 config = cnfg.load(".metis_config")
 
@@ -133,6 +134,16 @@ def store_shopstyle_products(product_type):
         api_url = 'http://api.shopstyle.com/api/v2/products?pid=shopstyle&fts=women+sweatshirts&limit=50'
     elif product_type == 'tops':
         api_url = 'http://api.shopstyle.com/api/v2/products?pid=shopstyle&fts=women+tops&limit=50'
+    elif product_type == 'sunglasses':
+        api_url = 'http://api.shopstyle.com/api/v2/products?pid=shopstyle&fts=women+sunglasses&limit=50'
+    elif product_type == 'jewelry':
+        api_url = 'http://api.shopstyle.com/api/v2/products?pid=shopstyle&fts=women+jewelry&limit=50'
+    elif product_type == 'handbags':
+        api_url = 'http://api.shopstyle.com/api/v2/products?pid=shopstyle&fts=women+handbags&limit=50'
+    elif product_type == 'hats':
+        api_url = 'http://api.shopstyle.com/api/v2/products?pid=shopstyle&fts=women+hats&limit=50'
+    elif product_type == 'womens-shoes':
+        api_url = 'http://api.shopstyle.com/api/v2/products?pid=shopstyle&fts=women+shoes&limit=50'
 
     conn = db.make_db_conn()
     product_table = db.get_shopstyle_product_table()
@@ -186,6 +197,25 @@ def store_shopstyle_categories():
         print(e)
 
 
+def update_categories():
+    conn = db.make_db_conn()
+    query = "SELECT * FROM shopstyle_product WHERE parent_category IS NULL"
+    s_all = text(query)
+    results = conn.execute(s_all).fetchall()
+    product_table = db.get_shopstyle_product_table()
+    category_map = db.get_category_parent_mapping(conn)
+    for i, prod in enumerate(results):
+        id = prod[0]
+        categories = prod[3]
+        parent_category = get_parent_category(category_map, categories)
+        print(i, ' - ', id, ': ', categories, ' - ', parent_category)
+        stmt = product_table.update().\
+            where(product_table.c.id == id).\
+            values(parent_category=parent_category)
+
+        conn.execute(stmt)
+
+
 def main(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument("--process", dest="process",
@@ -204,6 +234,8 @@ def main(argv):
     if process == 'product':
         category = args.type
         store_shopstyle_products(category)
+    if process == 'update-categories':
+        update_categories()
 
 
 if __name__ == "__main__":
