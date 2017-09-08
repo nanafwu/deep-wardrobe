@@ -6,10 +6,14 @@ import csv
 import random
 
 
+def make_jean_category_pair_map():
+    return [('jeans', 'sweaters'),
+            ('jeans', 'sweatshirts'),
+            ('jeans', 'womens-tops')]
+
+
 def make_valid_category_pair_map(more_jeans=False):
-    jeans_categories = [('jeans', 'sweaters'),
-                        ('jeans', 'sweatshirts'),
-                        ('jeans', 'womens-tops')]
+    jeans_categories = make_jean_category_pair_map()
     categories = [('dresses', 'jackets'),
                   ('womens-pants', 'jackets'),
                   ('womens-pants', 'sweaters'),
@@ -29,13 +33,12 @@ def make_valid_category_pair_map(more_jeans=False):
                   # ('womens-tops', 'jackets')
                   ]
     if more_jeans:
-        return categories + jeans_categories * 3
+        return categories + jeans_categories * 2
     else:
-        return categories + jeans_categories
+        return categories
 
 
-def make_category_pair_map():
-    product_combinations = make_valid_category_pair_map()
+def make_category_pair_map(product_combinations):
     category_pair = defaultdict(set)
     for combo in product_combinations:
         category_pair[combo[0]].add(combo[1])
@@ -112,7 +115,9 @@ def get_fashionable_product_pairs():
     """
     For every collection, get possible pairs of products
     """
-    valid_pairs = make_category_pair_map()
+    valid_pairs = make_category_pair_map(make_valid_category_pair_map())
+    jean_pairs = make_category_pair_map(make_jean_category_pair_map())
+
     collection_to_products = defaultdict(list)
     collection_products_db = db.get_collection_products()
     for row in collection_products_db:
@@ -124,11 +129,12 @@ def get_fashionable_product_pairs():
 
     product_pairs = []
     counter = 0
-    jean_counter = 0
-    jean_limit = 400  # too many pairs of jeans!
+
     for collection_id, collection_products in collection_to_products.items():
         seen_categories = set([])
-        product_combinations = combinations(collection_products, 2)
+        leftover_combinations = []
+        product_combinations = list(combinations(collection_products, 2))
+
         for combo in product_combinations:
             item1_product_id = combo[0][0]
             item2_product_id = combo[1][0]
@@ -137,6 +143,27 @@ def get_fashionable_product_pairs():
             item1_image = combo[0][2]
             item2_image = combo[1][2]
             if is_valid_combination(valid_pairs, item1_type, item2_type) and \
+               item1_type not in seen_categories and \
+               item2_type not in seen_categories:
+
+                seen_categories.add(item1_type)
+                seen_categories.add(item2_type)
+                product_pairs.append(
+                    (counter, collection_id,
+                     item1_product_id, item1_type, item1_image,
+                     item2_product_id, item2_type, item2_image))
+                counter += 1
+            else:
+                leftover_combinations.append(combo)
+
+        for combo in leftover_combinations:
+            item1_product_id = combo[0][0]
+            item2_product_id = combo[1][0]
+            item1_type = combo[0][1]
+            item2_type = combo[1][1]
+            item1_image = combo[0][2]
+            item2_image = combo[1][2]
+            if is_valid_combination(jean_pairs, item1_type, item2_type) and \
                item1_type not in seen_categories and \
                item2_type not in seen_categories:
 
