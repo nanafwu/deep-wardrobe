@@ -88,7 +88,7 @@ def get_product_images_by_category(category):
 
 def get_authors():
     conn = make_db_conn()
-    query = "SELECT DISTINCT(author_handle) FROM shopstyle_collection"
+    query = "select author_handle from shopstyle_collection group by author_handle order by count(1) asc"
     s_all = text(query)
     authors_result = [author[0] for author in conn.execute(s_all).fetchall()]
     return authors_result

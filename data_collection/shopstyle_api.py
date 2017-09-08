@@ -157,7 +157,7 @@ def store_featured_looks():
 
 
 def store_author_collections():
-    authors = db.get_authors()[140:]
+    authors = db.get_authors()
     for i, author_handle in enumerate(authors):
         print(i, ' - Getting collections from author ', author_handle)
         collections_api_url = 'https://www.shopstyle.com/api/v2/posts?limit=1000' + \
