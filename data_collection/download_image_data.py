@@ -31,6 +31,18 @@ def save_shopstyle_products():
     Pool(10).map(get_img, parsed_products)
 
 
+def get_tsv_products(filepath, img_dir):
+    products = []
+    with open(filepath, 'r') as tsvfile:
+        tsvreader = csv.reader(tsvfile, delimiter='\t')
+        for row in tsvreader:
+            product_id = row[0]
+            product_img = row[1]
+            path = img_dir + str(product_id) + '.jpg'
+            products.append((product_id, product_img, path))
+    return products
+
+
 def get_tsv_images(filepath, dir_path):
     products = []
     with open(filepath, 'r') as tsvfile:
@@ -50,8 +62,8 @@ def get_tsv_images(filepath, dir_path):
 
 def save_outfit_combinations():
     img_dir = 'data-outfits/images/'
-    outfits_file = 'data-outfits/outfit_combinations.tsv'
-    outfits_products = get_tsv_images(outfits_file, img_dir)
+    outfits_file = 'data-outfits/outfit_products.tsv'
+    outfits_products = get_tsv_products(outfits_file, img_dir)
     Pool(4).map(get_img, outfits_products)
 
 

@@ -1,7 +1,7 @@
 import importlib
 import data_collection.db as db
 from collections import defaultdict
-from itertools import combinations
+from itertools import permutations
 import csv
 import random
 
@@ -25,7 +25,7 @@ def is_valid_combo(types):
         types == set(['bottom', 'jacket'])
 
 
-def get_collection_product_combinations():
+def get_collection_product_permutations():
     """
     For every collection, get possible combinations of products
     """
@@ -41,7 +41,8 @@ def get_collection_product_combinations():
         p = (product_id, category, image_url)
         collection_to_products[collection_id].append(p)
 
-    all_collection_combinations = []
+    all_collection_permutations = []
+    all_products = set([])
     counter = 0
     for collection_id, collection_products in collection_to_products.items():
         # For every collection, get one item per category
@@ -53,7 +54,7 @@ def get_collection_product_combinations():
                 unique_products.append(product)
                 seen_categories.add(category)
 
-        product_combinations = list(combinations(unique_products, 2))
+        product_combinations = list(permutations(unique_products, 2))
         for combo in product_combinations:
             item1_product_id = combo[0][0]
             item2_product_id = combo[1][0]
@@ -68,7 +69,10 @@ def get_collection_product_combinations():
             combo_types = set([category_to_types.get(cp[1], None)
                                for cp in combo])
             if is_valid_combo(combo_types):
-                all_collection_combinations.append(
+                all_products.add((item1_product_id, item1_image))
+                all_products.add((item2_product_id, item2_image))
+
+                all_collection_permutations.append(
                     (counter, collection_id,
                      item1_product_id, item1_type, item1_image,
                      item2_product_id, item2_type, item2_image
@@ -76,7 +80,7 @@ def get_collection_product_combinations():
                      ))
                 counter += 1
 
-    return all_collection_combinations
+    return all_collection_permutations, all_products
 
 
 def write_tsv(rows, file_path):
@@ -89,10 +93,12 @@ def write_tsv(rows, file_path):
 
 
 def main():
-    all_collection_combinations = get_collection_product_combinations()
-    print('Found {} combinations'.format(len(all_collection_combinations)))
-    write_tsv(all_collection_combinations,
-              'data-outfits/outfit_combinations.tsv')
+    all_collection_permutations, all_products = get_collection_product_permutations()
+    print('Found {} permuations'.format(len(all_collection_permutations)))
+    write_tsv(all_collection_permutations,
+              'data-outfits/outfit_permutations.tsv')
+    write_tsv(list(all_products),
+              'data-outfits/outfit_products.tsv')
 
 
 if __name__ == '__main__':
