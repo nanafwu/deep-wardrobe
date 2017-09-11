@@ -113,7 +113,6 @@ def get_collection_products():
                     WHERE p.id = cp.product_id
                     AND p.parent_category IS NOT NULL
                     GROUP BY cp.collection_id
-                    HAVING count(1) < 8
                )
             """
     s_all = text(query)
