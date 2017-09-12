@@ -61,8 +61,8 @@ def get_tsv_images(filepath, dir_path):
 
 
 def save_outfit_combinations():
-    img_dir = 'data-outfits/images_small/'
-    outfits_file = 'data-outfits/outfit_products_small.tsv'
+    img_dir = 'data-outfits/images_large/'
+    outfits_file = 'data-outfits/outfit_products_large.tsv'
     outfits_products = get_tsv_products(outfits_file, img_dir)
     Pool(4).map(get_img, outfits_products)
 
