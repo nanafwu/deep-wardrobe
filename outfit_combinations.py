@@ -96,6 +96,7 @@ def get_collection_product_permutations():
                 all_products.add((item1_product_id, item1_image, item1_type))
                 all_products.add((item2_product_id, item2_image, item2_type))
                 all_products.add((item3_product_id, item3_image, item3_type))
+
                 # all_products.add((item4_product_id, item4_image, item4_type))
 
                 all_collection_permutations.append(
