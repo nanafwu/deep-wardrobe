@@ -95,10 +95,10 @@ def get_collection_product_permutations():
 
             combo_types = [category_to_types[cp[1]] for cp in combo]
             if is_valid_combo(combo_types):
-                all_products.add((item1_product_id, item1_image))
-                all_products.add((item2_product_id, item2_image))
-                all_products.add((item3_product_id, item3_image))
-                all_products.add((item4_product_id, item4_image))
+                all_products.add((item1_product_id, item1_image, item1_type))
+                all_products.add((item2_product_id, item2_image, item2_type))
+                all_products.add((item3_product_id, item3_image, item3_type))
+                all_products.add((item4_product_id, item4_image, item4_type))
 
                 all_collection_permutations.append(
                     (counter, collection_id,
