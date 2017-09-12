@@ -1,8 +1,9 @@
 import importlib
 import data_collection.db as db
-from collections import defaultdict
+from collections import defaultdict, Counter
 from itertools import permutations
 import csv
+import random
 
 
 def get_product_category_to_type():
@@ -16,10 +17,10 @@ def get_product_category_to_type():
             'sweatshirts': 'top',
             'jackets': 'coat',
             'womens-outerwear': 'coat',
-            'handbags': 'accessories',
-            'hats': 'accessories',
-            'jewelry': 'accessories',
-            'sunglasses': 'accessories',
+            'handbags': 'handbags',
+            'hats': 'hats',
+            'jewelry': 'jewelry',
+            'sunglasses': 'sunglasses',
             'womens-shoes': 'shoes'}
 
 
@@ -29,6 +30,10 @@ def is_valid_combo(types):
                  (types.count('coat') == 2) or \
                  (types.count('shoes') == 2) or \
                  (types.count('dress') == 2) or \
+                 (types.count('hats') == 2) or \
+                 (types.count('jewelry') == 2) or \
+                 (types.count('sunglasses') == 2) or \
+                 (types.count('handbags') == 2) or \
                  (types.count('dress') == 1 and
                   types.count('bottom') == 1) or \
                  (types.count('dress') == 1 and
@@ -56,6 +61,7 @@ def get_collection_product_permutations():
     all_collection_permutations = []
     all_products = set([])
     counter = 0
+    permutation_categories_all = []
     for collection_id, collection_products in collection_to_products.items():
         # For every collection, get one item per category
         seen_categories = set([])
@@ -99,10 +105,16 @@ def get_collection_product_permutations():
                      item1_product_id, item1_type, item1_image,
                      item2_product_id, item2_type, item2_image,
                      item3_product_id, item3_type, item3_image,
-                     item4_product_id, item4_type, item4_image))
+                     item4_product_id, item4_type, item4_image
+                     ))
+                permutation_categories = set([
+                    item1_type, item2_type, item3_type, item4_type])
+                permutation_categories_all.append(permutation_categories)
                 counter += 1
-
-    return all_collection_permutations, all_products
+    random.shuffle(all_collection_permutations)
+    permutations_counter = Counter([tuple(per)
+                                    for per in permutation_categories_all])
+    return all_collection_permutations, all_products, permutations_counter
 
 
 def write_tsv(rows, file_path):
@@ -115,8 +127,9 @@ def write_tsv(rows, file_path):
 
 
 def main():
-    all_collection_permutations, all_products = get_collection_product_permutations()
+    all_collection_permutations, all_products, permutations_counter = get_collection_product_permutations()
     print('Found {} permuations'.format(len(all_collection_permutations)))
+    print(permutations_counter)
     write_tsv(all_collection_permutations,
               'data-outfits/outfit_permutations.tsv')
     write_tsv(list(all_products),
