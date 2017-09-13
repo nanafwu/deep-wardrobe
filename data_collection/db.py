@@ -72,6 +72,19 @@ def get_category_parent_mapping(conn):
     return cat_mapping
 
 
+def get_collection_images():
+    conn = make_db_conn()
+    q = """SELECT c.id, c.image_url
+           FROM shopstyle_collection c, shopstyle_collection_product cp,
+           shopstyle_product p
+           WHERE p.id = cp.product_id
+           AND c.id = cp.collection_id
+           AND p.parent_category IS NOT NULL"""
+    s_all = text(q)
+    results = conn.execute(s_all).fetchall()
+    return results
+
+
 def get_product_images():
     conn = make_db_conn()
     query = "SELECT id, image_url, parent_category FROM shopstyle_product WHERE parent_category IS NOT NULL"

@@ -67,6 +67,18 @@ def save_outfit_combinations():
     Pool(4).map(get_img, outfits_products)
 
 
+def save_collection_images():
+    img_dir = 'data-outfits/images_collections/'
+    collections = db.get_collection_images()
+    collection_imgs = []
+    for c in collections:
+        image_url = c[1]
+        id = str(c[0])
+        path = img_dir + id + '.jpg'
+        collection_imgs.append((id, image_url, path))
+    Pool(4).map(get_img, collection_imgs)
+
+
 def save_paired_combinations():
 
     # Fashionable
@@ -103,6 +115,8 @@ def main(argv):
                 save_outfit_combinations()
             elif arg == 'paired':
                 save_paired_combinations()
+            elif arg == 'collection':
+                save_collection_images()
 
 
 if __name__ == "__main__":

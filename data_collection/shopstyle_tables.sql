@@ -64,3 +64,9 @@ AND c.id IN (
     GROUP BY cp.collection_id
     HAVING count(1) < 8
 )
+
+
+SELECT count(DISTINCT cp.collection_id)
+FROM shopstyle_collection_product cp, shopstyle_product p
+WHERE p.id = cp.product_id
+AND p.parent_category IS NOT NULL
