@@ -50,9 +50,10 @@ def get_collection_product_permutations():
     for row in collection_products_db:
         product_id = row[1]
         category = row[2]
+        product_name = row[-2]
         image_url = row[-1]
         collection_id = row[0]
-        p = (product_id, category, image_url)
+        p = (product_id, category, image_url, product_name)
         collection_to_products[collection_id].append(p)
 
     all_collection_permutations = []
@@ -91,11 +92,18 @@ def get_collection_product_permutations():
             item3_image = combo[2][2]
             # item4_image = combo[3][2]
 
+            item1_name = combo[0][3]
+            item2_name = combo[1][3]
+            item3_name = combo[2][3]
+
             combo_types = [category_to_types[cp[1]] for cp in combo]
             if is_valid_combo(combo_types):
-                all_products.add((item1_product_id, item1_image, item1_type))
-                all_products.add((item2_product_id, item2_image, item2_type))
-                all_products.add((item3_product_id, item3_image, item3_type))
+                all_products.add(
+                    (item1_product_id, item1_image, item1_type, item1_name))
+                all_products.add(
+                    (item2_product_id, item2_image, item2_type, item2_name))
+                all_products.add(
+                    (item3_product_id, item3_image, item3_type, item3_name))
 
                 # all_products.add((item4_product_id, item4_image, item4_type))
 
@@ -133,9 +141,9 @@ def main():
     print('Found {} permuations'.format(len(all_collection_permutations)))
     print(permutations_counter)
     write_tsv(all_collection_permutations,
-              'data-outfits/outfit_permutations.tsv')
+              'data-outfits/outfit_permutations_small.tsv')
     write_tsv(list(all_products),
-              'data-outfits/outfit_products.tsv')
+              'data-outfits/outfit_products_small.tsv')
 
 
 if __name__ == '__main__':

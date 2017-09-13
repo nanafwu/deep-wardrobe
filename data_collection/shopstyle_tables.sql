@@ -65,8 +65,20 @@ AND c.id IN (
     HAVING count(1) < 8
 )
 
+-- Number of valid collections
 
 SELECT count(DISTINCT cp.collection_id)
 FROM shopstyle_collection_product cp, shopstyle_product p
 WHERE p.id = cp.product_id
 AND p.parent_category IS NOT NULL
+
+
+-- Products for collection
+
+SELECT p.id, p.product_name
+FROM shopstyle_collection c, shopstyle_collection_product cp,
+shopstyle_product p
+WHERE p.id = cp.product_id
+AND c.id = cp.collection_id
+AND p.parent_category IS NOT NULL
+AND c.id = 42501928
