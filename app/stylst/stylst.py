@@ -37,11 +37,25 @@ def connect_db():
 
 
 @app.route('/')
-def show_entries():
+def show_wardrobe():
     db = get_db()
     cur = db.execute('select title, text from entries order by id desc')
     entries = cur.fetchall()
-    return render_template('show_entries.html', entries=entries)
+    return render_template(
+        'show_wardrobe.html',
+        page='wardrobe', entries=entries)
+
+
+@app.route('/style_suggestions', methods=['GET'])
+def show_styled_suggestions():
+    print('Show Styled Suggestions')
+    return render_template('styled_suggestions.html', page='suggestions')
+
+
+@app.route('/shop', methods=['GET'])
+def show_shop():
+    print('SHOP')
+    return render_template('shop.html', page='shop')
 
 
 @app.route('/add', methods=['POST'])
