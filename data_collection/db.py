@@ -79,7 +79,7 @@ def get_collection_images():
            shopstyle_product p
            WHERE p.id = cp.product_id
            AND c.id = cp.collection_id
-           AND p.parent_category IS NOT NULL"""
+           AND p.parent_category IS NOT NULL ORDER BY c.id"""
     s_all = text(q)
     results = conn.execute(s_all).fetchall()
     return results
