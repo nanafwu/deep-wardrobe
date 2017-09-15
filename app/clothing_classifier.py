@@ -19,8 +19,9 @@ def load_model(weights_path, json_path):
     return loaded_model
 
 
-def get_clothing_vector_model():
-    loaded_model = load_model(WEIGHTS_PATH, JSON_MODEL)
+def get_clothing_vector_model(weights_path=WEIGHTS_PATH,
+                              json_model=JSON_MODEL):
+    loaded_model = load_model(weights_path, json_model)
     loaded_model.layers.pop()  # Get rid of the classification layer
     last = loaded_model.layers[-1].output
     model = Model(loaded_model.input, last)
