@@ -1,3 +1,8 @@
 body {
     padding-top: 65px;
 }
+
+img {
+    height: 150px;
+    width: auto;
+}

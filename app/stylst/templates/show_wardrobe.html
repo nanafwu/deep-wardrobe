@@ -1,58 +1,26 @@
 {% extends "layout.html" %}
+
 {% block body %}
+  {% if session.logged_in %}
   <!-- Portfolio Item Heading -->
-  <h1 class="my-4">My Wardrobe</h1>
+  <h1 class="my-4">{{ session.user.name }}'s Wardrobe</h1>
 
-  <!-- Related Projects Row -->
-  <div class="row">
 
-    <div class="col-md-3 col-sm-6 mb-4">
-      <a href="#">
-        <img class="img-fluid" src="http://placehold.it/500x300" alt="">
-      </a>
-    </div>
-
-    <div class="col-md-3 col-sm-6 mb-4">
-      <a href="#">
-        <img class="img-fluid" src="http://placehold.it/500x300" alt="">
-      </a>
-    </div>
-
-    <div class="col-md-3 col-sm-6 mb-4">
-      <a href="#">
-        <img class="img-fluid" src="http://placehold.it/500x300" alt="">
-      </a>
-    </div>
-
-    <div class="col-md-3 col-sm-6 mb-4">
-      <a href="#">
-        <img class="img-fluid" src="http://placehold.it/500x300" alt="">
-      </a>
-    </div>
-
-  </div>
-  <!-- /.row -->
+  {% for item in session.wardrobe %}
+  <img class="img-responsive" src="{{ item.url }}" alt="">
+  {% endfor %}
 
   <!-- Portfolio Item Row -->
   <div class="row">
     <div class="col-md-12">
       <h3 class="my-3">Upload</h3>
       <form action="/upload" method="POST" enctype="multipart/form-data">
-        <label for="user_file">Upload Your File</label>
         <br></br>
         <input type="file" name="user_file">
         <br></br>
         <button type="submit">Upload</button>
      </form>
-      <p>
-  	 <ul>
-  	    {% for entry in entries %}
-  	    <li><h2>{{ entry.title }}</h2>{{ entry.text|safe }}
-	      {% else %}
-  	    <li><em>Unbelievable.  No entries here so far</em>
-  		{% endfor %}
-  	 </ul>
-      </p>
     </div>
   </div>
+  {% endif %}
 {% endblock %}
