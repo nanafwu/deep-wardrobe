@@ -4,7 +4,7 @@ import cnfg
 import boto3
 from clothing_classifier import get_clothing_vector_model
 from clothing_classifier import get_img_vectors
-from db.db import insert_wardrobe_item, connect_db, get_wardrobe_items
+from db.db import insert_wardrobe_item, make_db_conn, get_wardrobe_items
 import os
 
 # -------- GLOBAL VARIABLES --------
@@ -136,7 +136,7 @@ def get_db():
     current application context.
     """
     if not hasattr(g, 'postgres_db'):
-        g.postgres_db = connect_db()
+        g.postgres_db = make_db_conn()
     return g.postgres_db
 
 

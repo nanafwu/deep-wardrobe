@@ -2,9 +2,11 @@ from keras.models import model_from_json, Model
 from keras.preprocessing.image import img_to_array, load_img
 from keras.applications.inception_v3 import preprocess_input
 import numpy as np
+import csv
 
-WEIGHTS_PATH = '../model_files/inceptionv3_clothing_expanded_classifier.h5'
-JSON_MODEL = '../model_files/incep_filter_clothing_expanded_classifier.json'
+WEIGHTS_PATH = 'model_files/inceptionv3_clothing_expanded_classifier.h5'
+JSON_MODEL = 'model_files/incep_filter_clothing_expanded_classifier.json'
+PRODUCT_FEATURES_FILE = 'data-outfits/products_features.tsv'
 
 
 def load_model(weights_path, json_path):
@@ -60,3 +62,24 @@ def get_img_vectors(model, img_path):
     img = image_preprocess(img_path)
     preds = model.predict(img)[0]
     return preds
+
+
+def get_product_to_features(product_feats_file=PRODUCT_FEATURES_FILE,
+                            number_features_to_keep=300):
+    product_to_feats = {}
+    rf_feature_import_file = 'rf_feat_import.dat'
+    all_feat_importances = np.load(rf_feature_import_file)
+    top_features = sorted(list(
+        zip(range(0, 1024), all_feat_importances)),
+        key=lambda tup: tup[1], reverse=True)
+    bottom_feature_indexes = [f[0]
+                              for f in top_features[number_features_to_keep:]]
+    with open(product_feats_file, 'r') as tsvfile:
+        tsvreader = csv.reader(tsvfile, delimiter='\t')
+        for row in tsvreader:
+            product_id = row[0]
+            feats_stored = [float(n) for n in row[1:]]
+            feats_reduced = np.delete(feats_stored, bottom_feature_indexes)
+            feats = np.array([feats_reduced])
+            product_to_feats[product_id] = feats
+    return product_to_feats

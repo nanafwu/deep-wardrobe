@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine
 from sqlalchemy import Table, Column
-from sqlalchemy import Integer, String, MetaData
+from sqlalchemy import Integer, String, MetaData, Float
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.sql import text
 import cnfg
@@ -131,3 +131,29 @@ def get_collection_products():
     s_all = text(query)
     products_result = conn.execute(s_all).fetchall()
     return products_result
+
+
+def get_user_wardrobe_table():
+    metadata = MetaData()
+    return Table('stylst_user_wardrobe', metadata,
+                 Column('user_id', String),
+                 Column('image_url', String),
+                 Column('image_vector', ARRAY(Float)),
+                 Column('item_id', String))
+
+
+def insert_wardrobe_item(conn, user_id, image_url, image_vector):
+    wardrobe_table = get_user_wardrobe_table()
+    item = {'user_id': user_id,
+            'image_url': image_url,
+            'image_vector': image_vector}
+    conn.execute(wardrobe_table.insert(), item)
+
+
+def get_wardrobe_items(conn, user_id):
+    query = "SELECT image_url, image_vector FROM stylst_user_wardrobe WHERE user_id = '{}' ORDER BY create_time".format(
+        user_id)
+    s_all = text(query)
+    results = [{'url': i[0], 'vector': i[1]}
+               for i in conn.execute(s_all).fetchall()]
+    return results

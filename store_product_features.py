@@ -1,35 +1,32 @@
-from app.clothing_classifier import image_preprocess
-import csv
+from clothing_classifier import get_clothing_vector_model, get_img_vectors
 import argparse
 import utils
-import data_collection.db as db
+import db
 import sys
 
+COLLECTIONS_PRODUCT_FILE = 'data-outfits/products.tsv'
+COLLECTION_IMAGES_DIR = 'images/images_collection_products/'
+COLLECTIONS_PRODUCT_FEAT_FILE = 'data-outfits/products_features.tsv'
 
-def save_product_features(model, product_file, img_dir, output_file):
+
+def save_product_features():
     products = []
-    print('Reading file ', product_file)
-    with open(product_file, 'r') as f:
-        for i, line in enumerate(f.readlines()[:]):
+    model = get_clothing_vector_model()
+
+    print('Reading file ', COLLECTIONS_PRODUCT_FILE)
+    with open(COLLECTIONS_PRODUCT_FILE, 'r') as f:
+        for i, line in enumerate(f.readlines()):
             if i % 50 == 0:
                 print('Processing product ', i)
             try:
                 l = line.split('\t')
                 product_id = l[0]
-                product_img_path = img_dir + product_id + '.jpg'
-                product_img = image_preprocess(product_img_path)
-                product_feat = model.predict(product_img)
-
-                products.append([product_id] + product_feat[0].tolist())
+                product_img_path = COLLECTION_IMAGES_DIR + product_id + '.jpg'
+                product_feat = get_img_vectors(model, product_img_path)
+                products.append([product_id] + product_feat.tolist())
             except Exception as e:
                 print(e)
-
-    print('Saving products to ', output_file)
-    with open(output_file, 'w') as f:
-        writer = csv.writer(f, delimiter='\t')
-        for p in products:
-            writer.writerow(p)
-            f.flush()
+    utils.write_tsv(products, COLLECTIONS_PRODUCT_FEAT_FILE)
     return products
 
 
@@ -37,7 +34,6 @@ def save_collection_product_ids():
     """ Afterwards run
     `python data_collection/download_image_data.py -p collection_products`
     """
-    file_output_path = 'data-outfits/products.tsv'
     products_set = set([])
     collection_products = db.get_collection_products()
 
@@ -52,7 +48,7 @@ def save_collection_product_ids():
     products_lst = [list(prod) for prod in products_set]
     print('Found {} unique products used in collections'.format(
         len(products_lst)))
-    utils.write_tsv(products_lst, file_output_path)
+    utils.write_tsv(products_lst, COLLECTIONS_PRODUCT_FILE)
 
 
 def main(argv):
@@ -65,6 +61,8 @@ def main(argv):
 
     if process == 'collection-products':
         save_collection_product_ids()
+    elif process == 'product-features':
+        save_product_features()
 
 
 if __name__ == "__main__":
