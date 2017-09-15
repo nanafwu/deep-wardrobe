@@ -9,5 +9,5 @@ CREATE TABLE stylst_user_wardrobe(
        image_url VARCHAR(1000),
        image_vector FLOAT[],
        create_time TIMESTAMP DEFAULT now(),
-       PRIMARY KEY (user_id, image_url)
+       item_id uuid PRIMARY KEY DEFAULT uuid_generate_v4()
 );

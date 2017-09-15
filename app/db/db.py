@@ -24,7 +24,8 @@ def get_user_wardrobe_table():
     return Table('stylst_user_wardrobe', metadata,
                  Column('user_id', String),
                  Column('image_url', String),
-                 Column('image_vector', ARRAY(Float)))
+                 Column('image_vector', ARRAY(Float)),
+                 Column('item_id', String))
 
 
 def insert_wardrobe_item(conn, user_id, image_url, image_vector):

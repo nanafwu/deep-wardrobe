@@ -2,16 +2,15 @@ from flask import Flask, request, session, g, redirect, url_for, abort, \
     render_template, flash
 import cnfg
 import boto3
-from clothing_classifier import get_clothing_classifier
-from clothing_classifier import get_classier_prediction
+from clothing_classifier import get_clothing_vector_model
+from clothing_classifier import get_img_vectors
 from db.db import insert_wardrobe_item, connect_db, get_wardrobe_items
 import os
 
 # -------- GLOBAL VARIABLES --------
 app = Flask(__name__)  # create the application instance :)
-app.config.from_object(__name__)  # load config from this file , flaskr.py
+app.config.from_object(__name__)  # load config from this file, stylst.py
 
-# Load default config and override config from an environment variable
 app.config.update(dict(
     SECRET_KEY='development key',
     USERNAME='admin',
@@ -28,7 +27,7 @@ s3 = boto3.client(
 )
 
 # -------- CLASSIFIER IN MEMORY --------
-global clothing_classifier
+global model
 
 
 def upload_file_to_s3(file, filename, bucket_name, acl="public-read"):
@@ -80,15 +79,17 @@ def upload_file():
 
         print('Uploaded image to', str(image_url))
 
+        img_vec = get_img_vectors(model, temp_dest)
+        img_vec = [i.item() for i in img_vec]
+        print('PREDICTION: ', img_vec)
+
         conn = get_db()
         user_id = session['user']['user_id']
-        insert_wardrobe_item(conn, user_id, image_url, None)
+        insert_wardrobe_item(conn, user_id, image_url, img_vec)
 
         curr_wardrobe = session['wardrobe']
         curr_wardrobe.append({'url': image_url, 'vector': None})
         session['wardrobe'] = curr_wardrobe
-        prediction = get_classier_prediction(clothing_classifier, temp_dest)
-        print('PREDICTION: ', prediction)
         os.remove(temp_dest)
         return redirect(url_for('show_wardrobe'))
 
@@ -172,8 +173,8 @@ def get_db():
 @app.before_first_request
 def first_load():
     app.logger.info("Loading Clothing Classifier")
-    global clothing_classifier
-    clothing_classifier = get_clothing_classifier()
+    global model
+    model = get_clothing_vector_model()
 
 
 @app.teardown_appcontext
