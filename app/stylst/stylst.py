@@ -28,6 +28,7 @@ s3 = boto3.client(
 
 # -------- CLASSIFIER IN MEMORY --------
 global model
+global wardrobe  # hardcode wardrobe for now
 
 
 def upload_file_to_s3(file, filename, bucket_name, acl="public-read"):
@@ -66,6 +67,7 @@ def upload_file():
         return "Please select a file"
 
     if file:
+        print('Uploading ..', session.keys())
         # file.filename = secure_filename(file.filename)
         s3bucket = config['s3']["S3_BUCKET"]
 
@@ -79,19 +81,19 @@ def upload_file():
 
         print('Uploaded image to', str(image_url))
 
-        img_vec = get_img_vectors(model, temp_dest)
-        img_vec = [i.item() for i in img_vec]
+        # img_vec = get_img_vectors(model, temp_dest)
+        # img_vec = [i.item() for i in img_vec]
+        img_vec = []
         print('PREDICTION: ', img_vec)
 
         conn = get_db()
         user_id = session['user']['user_id']
         insert_wardrobe_item(conn, user_id, image_url, img_vec)
 
-        curr_wardrobe = session['wardrobe']
-        curr_wardrobe.append({'url': image_url, 'vector': None})
-        session['wardrobe'] = curr_wardrobe
+        wardrobe.append({'url': image_url, 'vector': img_vec})
         os.remove(temp_dest)
-        return redirect(url_for('show_wardrobe'))
+        # redirect(url_for('show_wardrobe'))
+        return render_template('show_wardrobe.html', wardrobe=wardrobe)
 
     else:
         # TODO: Show ERROR message
@@ -100,12 +102,9 @@ def upload_file():
 
 @app.route('/')
 def show_wardrobe():
-    conn = get_db()
-    cur = conn.execute('select title, text from entries order by id desc')
-    entries = cur.fetchall()
-    return render_template(
-        'show_wardrobe.html',
-        page='wardrobe', entries=entries)
+    print('wardrobe user: ', session.get('user', None))
+    print(session.keys())
+    return render_template('show_wardrobe.html', page='wardrobe', wardrobe=wardrobe)
 
 
 @app.route('/style_suggestions', methods=['GET'])
@@ -132,35 +131,6 @@ def add_entry():
     return redirect(url_for('/'))
 
 
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    error = None
-    print('request: ', request)
-    if request.method == 'POST':
-        if request.form['username'] != app.config['USERNAME']:
-            error = 'Invalid username'
-        elif request.form['password'] != app.config['PASSWORD']:
-            error = 'Invalid password'
-        else:
-            conn = get_db()
-            session['logged_in'] = True
-            user_id = '5221de0a-cd0c-45a3-ac66-d1a6339ab446'
-            session['wardrobe'] = get_wardrobe_items(conn, user_id)
-            session['user'] = {
-                'user_id': user_id,
-                'name': 'Nana'}  # hard code 1 user for now
-            flash('You were logged in')
-            return redirect(url_for('show_wardrobe'))
-    return render_template('login.html', error=error)
-
-
-@app.route('/logout')
-def logout():
-    session.pop('logged_in', None)
-    flash('You were logged out')
-    return redirect(url_for('show_wardrobe'))
-
-
 def get_db():
     """Opens a new database connection if there is none yet for the
     current application context.
@@ -174,7 +144,17 @@ def get_db():
 def first_load():
     app.logger.info("Loading Clothing Classifier")
     global model
-    model = get_clothing_vector_model()
+    global wardrobe
+    # model = get_clothing_vector_model()
+    conn = get_db()
+    session['logged_in'] = True
+    user_id = '5221de0a-cd0c-45a3-ac66-d1a6339ab446'
+    wardrobe = get_wardrobe_items(conn, user_id)
+    session.permanent = True
+    session['user'] = {
+        'user_id': user_id,
+        'name': 'Nana'}  # hard code 1 user for now
+    print('You were logged in')
 
 
 @app.teardown_appcontext

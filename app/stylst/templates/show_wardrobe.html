@@ -6,7 +6,7 @@
   <h1 class="my-4">{{ session.user.name }}'s Wardrobe</h1>
 
 
-  {% for item in session.wardrobe %}
+  {% for item in wardrobe %}
   <img class="img-responsive" src="{{ item.url }}" alt="">
   {% endfor %}
 

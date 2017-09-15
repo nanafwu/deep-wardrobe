@@ -25,15 +25,10 @@
             <li class="nav-item {% if page == 'shop'%}active{% endif %}">
               <a class="nav-link" href="/shop">Shop</a>
             </li>
-	    {% if not session.logged_in %}
 	    <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('login') }}">Log In</a>
+              <a class="nav-link" href="#">Profile</a>
             </li>
-	    {% else %}
-	    <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('logout') }}">Log Out</a>
-            </li>
-	    {% endif %}
+
           </ul>
         </div>
       </div>
