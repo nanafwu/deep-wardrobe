@@ -60,9 +60,9 @@ def get_tsv_images(filepath, dir_path):
     return products
 
 
-def save_outfit_combinations():
-    img_dir = 'data-outfits/images_large/'
-    outfits_file = 'data-outfits/outfit_products_large.tsv'
+def save_collection_products():
+    img_dir = 'images/images_collection_products/'
+    outfits_file = 'data-outfits/products.tsv'
     outfits_products = get_tsv_products(outfits_file, img_dir)
     Pool(4).map(get_img, outfits_products)
 
@@ -111,10 +111,8 @@ def main(argv):
         if opt in ('-p', '--process'):
             if arg == 'product':
                 save_shopstyle_products()
-            elif arg == 'outfits':
-                save_outfit_combinations()
-            elif arg == 'paired':
-                save_paired_combinations()
+            elif arg == 'collection_products':
+                save_collection_products()
             elif arg == 'collection':
                 save_collection_images()
 
