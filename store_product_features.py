@@ -3,6 +3,7 @@ import argparse
 import utils
 import db
 import sys
+from pathlib import Path
 
 COLLECTIONS_PRODUCT_FILE = 'data-outfits/products.tsv'
 COLLECTION_IMAGES_DIR = 'images/images_collection_products/'
@@ -22,8 +23,10 @@ def save_product_features():
                 l = line.split('\t')
                 product_id = l[0]
                 product_img_path = COLLECTION_IMAGES_DIR + product_id + '.jpg'
-                product_feat = get_img_vectors(model, product_img_path)
-                products.append([product_id] + product_feat.tolist())
+                img_file = Path(product_img_path)
+                if img_file.is_file():
+                    product_feat = get_img_vectors(model, product_img_path)
+                    products.append([product_id] + product_feat.tolist())
             except Exception as e:
                 print(e)
     utils.write_tsv(products, COLLECTIONS_PRODUCT_FEAT_FILE)
