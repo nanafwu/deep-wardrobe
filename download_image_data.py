@@ -2,12 +2,13 @@
 Store images from ShopStyle
 """
 
-import db as db
+import db.db as db
 import sys
 import getopt
 from multiprocessing.dummy import Pool
 import urllib.request
 import csv
+import os
 
 
 def get_img(product):
@@ -64,6 +65,12 @@ def save_collection_products():
     img_dir = 'images/images_collection_products/'
     outfits_file = 'data-outfits/products.tsv'
     outfits_products = get_tsv_products(outfits_file, img_dir)
+    existing_image_files = os.listdir(img_dir)
+    existing_images = set([f.replace('.jpg', '')
+                           for f in existing_image_files])
+    filtered_outfits_products = [
+        p for p in outfits_products if p[0] not in existing_images]
+    print('Found {} images to download'.format(len(filtered_outfits_products)))
     Pool(4).map(get_img, outfits_products)
 
 

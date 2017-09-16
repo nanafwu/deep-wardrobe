@@ -120,13 +120,6 @@ def get_collection_products():
                p.id = cp.product_id
                AND c.id = cp.collection_id
                AND p.parent_category IS NOT NULL
-               AND c.id IN (
-                    SELECT cp.collection_id
-                    FROM shopstyle_collection_product cp, shopstyle_product p
-                    WHERE p.id = cp.product_id
-                    AND p.parent_category IS NOT NULL
-                    GROUP BY cp.collection_id
-               )
             """
     s_all = text(query)
     products_result = conn.execute(s_all).fetchall()
