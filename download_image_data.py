@@ -71,7 +71,7 @@ def save_collection_products():
     filtered_outfits_products = [
         p for p in outfits_products if p[0] not in existing_images]
     print('Found {} images to download'.format(len(filtered_outfits_products)))
-    Pool(4).map(get_img, outfits_products)
+    Pool(4).map(get_img, filtered_outfits_products)
 
 
 def save_collection_images():
