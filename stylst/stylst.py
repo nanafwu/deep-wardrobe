@@ -2,8 +2,8 @@ from flask import Flask, request, session, g, redirect, url_for, abort, \
     render_template, flash
 import cnfg
 import boto3
-from clothing_classifier import get_clothing_vector_model
-from clothing_classifier import get_img_vectors
+from clothing_classifier import get_clothing_vector_model, load_model
+from clothing_classifier import get_img_vectors, get_classier_prediction
 from db.db import insert_wardrobe_item, make_db_conn, get_wardrobe_items
 import os
 
@@ -28,7 +28,8 @@ s3 = boto3.client(
 
 # -------- CLASSIFIER IN MEMORY --------
 global model
-global wardrobe  # hardcode wardrobe for now
+global classifier
+global wardrobe  # hardcode 1 wardrobe for now
 
 
 def upload_file_to_s3(file, filename, bucket_name, acl="public-read"):
@@ -81,18 +82,20 @@ def upload_file():
 
         print('Uploaded image to', str(image_url))
 
-        # img_vec = get_img_vectors(model, temp_dest)
-        # img_vec = [i.item() for i in img_vec]
-        img_vec = []
-        print('PREDICTION: ', img_vec)
+        category = get_classier_prediction(classifier, temp_dest)[0][0]
+        img_vec = get_img_vectors(model, temp_dest)
+        img_vec = [i.item() for i in img_vec]
+        # img_vec = []
+        print('{} / clothing vector {} '.format(category, len(img_vec)))
 
         conn = get_db()
         user_id = session['user']['user_id']
-        insert_wardrobe_item(conn, user_id, image_url, img_vec)
+        new_item = insert_wardrobe_item(
+            conn, user_id, image_url, img_vec, category)
 
-        wardrobe.append({'url': image_url, 'vector': img_vec})
+        wardrobe.append(new_item)
         os.remove(temp_dest)
-        # redirect(url_for('show_wardrobe'))
+
         return render_template('show_wardrobe.html', wardrobe=wardrobe)
 
     else:
@@ -145,7 +148,9 @@ def first_load():
     app.logger.info("Loading Clothing Classifier")
     global model
     global wardrobe
-    # model = get_clothing_vector_model()
+    global classifier
+    model = get_clothing_vector_model()
+    classifier = load_model()
     conn = get_db()
     session['logged_in'] = True
     user_id = '5221de0a-cd0c-45a3-ac66-d1a6339ab446'
@@ -162,3 +167,6 @@ def close_db(error):
     """Closes the database again at the end of the request."""
     if hasattr(g, 'postgres_db'):
         g.postgres_db.close()
+
+# export FLASK_APP=stylst
+# export FLASK_DEBUG=true

@@ -4,6 +4,8 @@ from sqlalchemy import Integer, String, MetaData, Float
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.sql import text
 import cnfg
+from sqlalchemy.dialects.postgresql import UUID
+import uuid
 
 
 def make_db_conn():
@@ -132,21 +134,25 @@ def get_user_wardrobe_table():
                  Column('user_id', String),
                  Column('image_url', String),
                  Column('image_vector', ARRAY(Float)),
-                 Column('item_id', String))
+                 Column('item_id', String),
+                 Column('category', String))
 
 
-def insert_wardrobe_item(conn, user_id, image_url, image_vector):
+def insert_wardrobe_item(conn, user_id, image_url, image_vector, category):
     wardrobe_table = get_user_wardrobe_table()
+    item_id = str(uuid.uuid4())
     item = {'user_id': user_id,
             'image_url': image_url,
-            'image_vector': image_vector}
+            'image_vector': image_vector,
+            'item_id': item_id,
+            'category': category}
     conn.execute(wardrobe_table.insert(), item)
+    return item
 
 
 def get_wardrobe_items(conn, user_id):
-    query = "SELECT image_url, image_vector FROM stylst_user_wardrobe WHERE user_id = '{}' ORDER BY create_time".format(
+    query = "SELECT item_id, image_url, image_vector, category FROM stylst_user_wardrobe WHERE user_id = '{}' ORDER BY create_time".format(
         user_id)
     s_all = text(query)
-    results = [{'url': i[0], 'vector': i[1]}
-               for i in conn.execute(s_all).fetchall()]
+    results = conn.execute(s_all).fetchall()
     return results

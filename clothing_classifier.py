@@ -9,7 +9,7 @@ JSON_MODEL = 'model_files/incep_filter_clothing_expanded_classifier.json'
 PRODUCT_FEATURES_FILE = 'data-outfits/products_features.tsv'
 
 
-def load_model(weights_path, json_path):
+def load_model(weights_path=WEIGHTS_PATH, json_path=JSON_MODEL):
     json_file = open(json_path, 'r')
     loaded_model_json = json_file.read()
     json_file.close()
@@ -21,9 +21,8 @@ def load_model(weights_path, json_path):
     return loaded_model
 
 
-def get_clothing_vector_model(weights_path=WEIGHTS_PATH,
-                              json_model=JSON_MODEL):
-    loaded_model = load_model(weights_path, json_model)
+def get_clothing_vector_model():
+    loaded_model = load_model()
     loaded_model.layers.pop()  # Get rid of the classification layer
     last = loaded_model.layers[-1].output
     model = Model(loaded_model.input, last)
@@ -64,9 +63,7 @@ def get_img_vectors(model, img_path):
     return preds
 
 
-def get_product_to_features(product_feats_file=PRODUCT_FEATURES_FILE,
-                            number_features_to_keep=300):
-    product_to_feats = {}
+def get_bottom_feature_indexes(number_features_to_keep=300):
     rf_feature_import_file = 'rf_feat_import.dat'
     all_feat_importances = np.load(rf_feature_import_file)
     top_features = sorted(list(
@@ -74,6 +71,14 @@ def get_product_to_features(product_feats_file=PRODUCT_FEATURES_FILE,
         key=lambda tup: tup[1], reverse=True)
     bottom_feature_indexes = [f[0]
                               for f in top_features[number_features_to_keep:]]
+    return bottom_feature_indexes
+
+
+def get_product_to_features(product_feats_file=PRODUCT_FEATURES_FILE,
+                            number_features_to_keep=300):
+    product_to_feats = {}
+    bottom_feature_indexes = get_bottom_feature_indexes(
+        number_features_to_keep)
     with open(product_feats_file, 'r') as tsvfile:
         tsvreader = csv.reader(tsvfile, delimiter='\t')
         for row in tsvreader:

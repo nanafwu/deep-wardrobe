@@ -9,5 +9,6 @@ CREATE TABLE stylst_user_wardrobe(
        image_url VARCHAR(1000),
        image_vector FLOAT[],
        create_time TIMESTAMP DEFAULT now(),
-       item_id uuid PRIMARY KEY DEFAULT uuid_generate_v4()
+       item_id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+       category VARCHAR(100) REFERENCES shopstyle_category(id)
 );
