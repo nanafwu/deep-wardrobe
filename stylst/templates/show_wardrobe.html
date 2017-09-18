@@ -2,15 +2,22 @@
 
 {% block body %}
   {% if session.logged_in %}
-  <!-- Portfolio Item Heading -->
+
   <h1 class="my-4">{{ session.user.name }}'s Wardrobe</h1>
 
 
-  {% for item in wardrobe %}
-  <img class="img-responsive" src="{{ item.image_url }}" alt="">
+  {% for category in wardrobe %}
+  <div class="row">
+    {{ category[0] }} ({{ category[1] }})
+    <div class="col-md-12">
+      {% for item in category[2] %}
+      <img class="img-responsive" src="{{ item.image_url }}" alt="">
+      {% endfor %}
+    </div>
+  </div>
   {% endfor %}
 
-  <!-- Portfolio Item Row -->
+
   <div class="row">
     <div class="col-md-12">
       <h3 class="my-3">Upload</h3>

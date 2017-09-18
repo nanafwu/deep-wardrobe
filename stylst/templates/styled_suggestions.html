@@ -2,4 +2,19 @@
 {% block body %}
   <h2>Styled Suggestions</h2>
 
+  <div class="container">
+     {% for combo in suggested_combos %}
+     <div class="row">
+       Look {{ combo[0] }}
+       <div class="col">
+	 <img class="img-responsive" src="static/{{ combo[1] }}" alt="">
+       </div>
+       {% for wardrobe_img in combo[2] %}
+       <div class="col">
+	 <img class="img-responsive" src="{{ wardrobe_img }}" alt="">
+       </div>
+       {% endfor %}
+     </div>
+     {% endfor %}
+  </div>
 {% endblock %}
