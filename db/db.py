@@ -154,5 +154,14 @@ def get_wardrobe_items(conn, user_id):
     query = "SELECT item_id, image_url, image_vector, category FROM stylst_user_wardrobe WHERE user_id = '{}' ORDER BY create_time".format(
         user_id)
     s_all = text(query)
-    results = conn.execute(s_all).fetchall()
-    return results
+    query_results = conn.execute(s_all).fetchall()
+    wardrobe_item_info = []
+    for item in query_results:
+        item_id = str(item[0])
+        wardrobe_item_info.append({
+            'user_id': user_id,
+            'item_id': item_id,
+            'image_url': item[1],
+            'category': item[-1],
+            'image_vector': item[2]})
+    return wardrobe_item_info

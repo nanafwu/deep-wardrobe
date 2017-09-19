@@ -149,7 +149,6 @@ def show_styled_suggestions():
     outfit_counter = 1
     for combo_id, closest_collection in matching_collections:
         wardrobe_item_images = [c[1] for c in combo_id]
-        print(wardrobe_item_images)
         closest_collection_id = closest_collection[0]
         collection_img = 'images_collections/' + closest_collection_id + '.jpg'
         suggested_combos.append(
@@ -191,7 +190,7 @@ def show_shop():
                (curr_category not in suggested_product_categories):
                 suggested_product_categories.add(curr_category)
                 suggested_products.append(p)
-        print(suggested_products)
+
         all_suggested_products.append(
             [item_image_url, collection_img, suggested_products[:3]])
 
@@ -211,11 +210,8 @@ def get_db():
 def get_wardrobe_item_info():
     wardrobe_item_info = {}
     for item in wardrobe:
-        item_id = str(item[0])
-        wardrobe_item_info[item_id] = {
-            'image_url': item[1],
-            'category': item[-1]
-        }
+        item_id = item['item_id']
+        wardrobe_item_info[item_id] = item
     return wardrobe_item_info
 
 
@@ -261,8 +257,7 @@ def first_load():
         number_features_to_keep=FEATURE_COUNT)
 
     neighbors_model, index_to_prod = rec.make_nn_model(prods_to_feats)
-
-    print('You were logged in')
+    print('Done initializing...')
 
 
 @app.teardown_appcontext
