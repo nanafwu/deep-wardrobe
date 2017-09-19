@@ -45,11 +45,15 @@ def image_preprocess(img_path):
     return image
 
 
+def get_clothes_labels():
+    return ['dresses', 'handbags', 'hats', 'jackets', 'jeans',
+            'jewelry', 'shorts', 'skirts', 'sunglasses', 'sweaters',
+            'sweatshirts', 'womens-outerwear', 'womens-pants',
+            'womens-shoes', 'womens-tops']
+
+
 def get_classier_prediction(clothing_classifier, img_path):
-    clothes_labels = ['dresses', 'handbags', 'hats', 'jackets', 'jeans',
-                      'jewelry', 'shorts', 'skirts', 'sunglasses', 'sweaters',
-                      'sweatshirts', 'womens-outerwear', 'womens-pants',
-                      'womens-shoes', 'womens-tops']
+    clothes_labels = get_clothes_labels()
     img = image_preprocess(img_path)
     preds = clothing_classifier.predict(img)[0]
     preds_labels = list(zip(clothes_labels, preds))

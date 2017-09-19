@@ -1,20 +1,23 @@
 {% extends "layout.html" %}
 {% block body %}
-  <h2>SHOP</h2>
+  <h5>Complete the Look</h5>
   <div class="container">
     {% for suggestion in suggested_products %}
-    <div class="row">
-      <div class="col">
-	 <img class="img-responsive" src="{{ suggestion[0] }}" alt="">
-      </div>
-      {% for suggested_product in suggestion[2] %}
-       <div class="col">
-	 <img class="img-responsive" src="{{ suggested_product['image_url'] }}" alt="">
-       </div>
-      {% endfor %}
-      <div class="col">
-	 <img class="img-responsive" src="static{{ suggestion[1] }}" alt="">
-      </div>
+
+    <div class="collection">
+	<img class="img-responsive" src="static{{ suggestion[1] }}">
+    </div>
+
+    <div>
+    <div class="row suggested-product">
+	 <div class="col-md-6"><img class="img-responsive" src="{{ suggestion[0] }}"></div>
+         {% for suggested_product in suggestion[2] %}
+	 <div class="col-md-2">
+	   <img class="img-responsive" src="{{ suggested_product['image_url'] }}">
+	   <label>{{ suggested_product['product_name'] }}</label>
+	 </div>
+         {% endfor %}
+     </div>
     </div>
     {% endfor %}
   </div>

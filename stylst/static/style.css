@@ -13,9 +13,33 @@ h5 {
     margin-bottom: 15px;
 }
 
+.panel {
+    background-color: white;
+     display: inline-block;
+}
+
+.panel h6{
+    padding: 20px 0px 0px 20px;
+}
+
 img {
     height: 180px;
     width: auto;
+}
+
+.collection {
+    align: text-center
+}
+
+.collection img {
+    height: 300px;
+    width: auto;
+}
+
+.suggested-product img{
+    height: 100px;
+    width: auto;
+    display: inline-block;
 }
 
 .wardrobe_img {
@@ -39,6 +63,6 @@ img {
 }
 
 .panel-body img {
-    margin: 10px 1c0px 10px 0px;
+    margin: 20px;
 
 }

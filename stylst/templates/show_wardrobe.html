@@ -5,9 +5,9 @@
   <h5>{{ user.name }}'s Wardrobe</h5>
   {% for category in wardrobe %}
     <div class="panel panel-default">
-      <div class="panel-heading">
-	<h3 class="panel-title small"><b> {{ category[0] }}</b> ({{ category[1] }})</h3>
-      </div>
+
+      <h6>{{ category[0] }} ({{ category[1] }})</h6>
+
       <div class="panel-body">
 	{% for item in category[2] %}
 	<img class="img-responsive wardrobe_img" src="{{ item.image_url }}" alt="">
