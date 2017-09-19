@@ -1,8 +1,44 @@
 body {
     padding-top: 65px;
+    background-color: #F3E8EE;
+}
+
+h3 {
+    color: #403F4C;
+}
+
+h5 {
+    color: #403F4C;
+    margin-top: 15px;
+    margin-bottom: 15px;
 }
 
 img {
-    height: 150px;
+    height: 180px;
     width: auto;
+}
+
+.wardrobe_img {
+    border-radius: 10%;
+}
+
+
+.combo .row {
+    padding: 5px 20px 10px 20px ;
+    background-color: white;
+}
+
+.combo .row h5 {
+    padding: 5px;
+    margin: 10px 20px 10px 20px;
+    background-color:  #F3E8EE;
+}
+
+.panel {
+    margin: 20px 0px 20px 0px;
+}
+
+.panel-body img {
+    margin: 10px 1c0px 10px 0px;
+
 }

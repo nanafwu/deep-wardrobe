@@ -1,5 +1,4 @@
-from flask import Flask, request, session, g, redirect, url_for, abort, \
-    render_template, flash
+from flask import Flask, request, g, redirect, url_for, render_template
 import cnfg
 import boto3
 import wardrobe_recommender as rec
@@ -32,6 +31,7 @@ s3 = boto3.client(
 # -------- CLASSIFIER IN MEMORY --------
 global model
 global classifier
+global user
 global wardrobe
 global prod_to_colls
 global cols_to_prod
@@ -89,8 +89,6 @@ def upload_file():
         return "Please select a file"
 
     if file:
-        print('Uploading ..', session.keys())
-        # file.filename = secure_filename(file.filename)
         s3bucket = config['s3']["S3_BUCKET"]
 
         # Save locally to make predictions
@@ -106,28 +104,33 @@ def upload_file():
         category = get_classier_prediction(classifier, temp_dest)[0][0]
         img_vec = get_img_vectors(model, temp_dest)
         img_vec = [i.item() for i in img_vec]
-        # img_vec = []
+
         print('{} / clothing vector {} '.format(category, len(img_vec)))
 
         conn = get_db()
-        user_id = session['user']['user_id']
+        user_id = user['user_id']
         new_item = insert_wardrobe_item(
             conn, user_id, image_url, img_vec, category)
 
         wardrobe.append(new_item)
         os.remove(temp_dest)
 
-        return render_template('show_wardrobe.html', wardrobe=sort_wardrobe(wardrobe))
+        return redirect(url_for('show_wardrobe'))
 
     else:
         # TODO: Show ERROR message
         return redirect(url_for('show_wardrobe'))
 
 
+@app.route("/upload", methods=["GET"])
+def show_upload():
+    return render_template('upload.html', page='upload')
+
+
 @app.route('/')
 def show_wardrobe():
     return render_template('show_wardrobe.html', page='wardrobe',
-                           wardrobe=sort_wardrobe(wardrobe))
+                           wardrobe=sort_wardrobe(wardrobe), user=user)
 
 
 @app.route('/style_suggestions', methods=['GET'])
@@ -143,7 +146,7 @@ def show_styled_suggestions():
         valid_combos, items_to_colls)
 
     suggested_combos = []
-    outfit_counter = 0
+    outfit_counter = 1
     for combo_id, closest_collection in matching_collections:
         wardrobe_item_images = [c[1] for c in combo_id]
         print(wardrobe_item_images)
@@ -196,18 +199,6 @@ def show_shop():
                            suggested_products=all_suggested_products)
 
 
-@app.route('/add', methods=['POST'])
-def add_entry():
-    if not session.get('logged_in'):
-        abort(401)
-    db = get_db()
-    db.execute('insert into entries (title, text) values (?, ?)',
-               [request.form['title'], request.form['text']])
-    db.commit()
-    flash('New entry was successfully posted')
-    return redirect(url_for('/'))
-
-
 def get_db():
     """Opens a new database connection if there is none yet for the
     current application context.
@@ -233,6 +224,7 @@ def first_load():
     app.logger.info("Loading Clothing Classifier")
     global model
     global wardrobe  # hardcode 1 wardrobe for now
+    global user
     global classifier
 
     global prod_to_colls
@@ -245,15 +237,13 @@ def first_load():
     global bottom_feature_indexes
 
     # Initialize classifier and Vector Model
-    # model = get_clothing_vector_model()
-    # classifier = load_model()
+    model = get_clothing_vector_model()
+    classifier = load_model()
 
     conn = get_db()
-    session['logged_in'] = True
     user_id = '5221de0a-cd0c-45a3-ac66-d1a6339ab446'
     wardrobe = get_wardrobe_items(conn, user_id)
-    session.permanent = True
-    session['user'] = {
+    user = {
         'user_id': user_id,
         'name': 'Nana'}  # hard code 1 user for now
 

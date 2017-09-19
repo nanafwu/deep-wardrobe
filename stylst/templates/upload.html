@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+
+{% block body %}
+
+  <div class="row">
+    <div class="col-md-12">
+      <h3 class="my-3">Upload</h3>
+      <form action="/upload" method="POST" enctype="multipart/form-data">
+        <br></br>
+        <input type="file" name="user_file">
+        <br></br>
+        <button type="submit">Upload</button>
+     </form>
+    </div>
+  </div>
+{% endblock %}
