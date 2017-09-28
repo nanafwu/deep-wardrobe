@@ -2,18 +2,15 @@
 
 {% block body %}
 
-  <h5>{{ user.name }}'s Wardrobe</h5>
+<h4>{{ user.name }}'s Wardrobe</h4>
+<div class="container combo">
   {% for category in wardrobe %}
-    <div class="panel panel-default">
-
-      <h6>{{ category[0] }} ({{ category[1] }})</h6>
-
-      <div class="panel-body">
-	{% for item in category[2] %}
-	<img class="img-responsive wardrobe_img" src="{{ item.image_url }}" alt="">
+    <div class="row"><h5><small>{{ category[0] }} ({{ category[1] }})</small></h5></div>
+    <div class="row">
+      {% for item in category[2] %}
+      <img class="img-responsive wardrobe_img" src="{{ item.image_url }}" alt="">
       {% endfor %}
-      </div>
     </div>
   {% endfor %}
-
+</div>
 {% endblock %}

@@ -1,23 +1,34 @@
 {% extends "layout.html" %}
 {% block body %}
-  <h5>Complete the Look</h5>
-  <div class="container">
+  <h4>Complete the Look</h4>
+  <div class="container shop">
     {% for suggestion in suggested_products %}
-
-    <div class="collection">
-	<img class="img-responsive" src="static{{ suggestion[1] }}">
-    </div>
-
-    <div>
-    <div class="row suggested-product">
-	 <div class="col-md-6"><img class="img-responsive" src="{{ suggestion[0] }}"></div>
-         {% for suggested_product in suggestion[2] %}
-	 <div class="col-md-2">
-	   <img class="img-responsive" src="{{ suggested_product['image_url'] }}">
-	   <label>{{ suggested_product['product_name'] }}</label>
-	 </div>
-         {% endfor %}
-     </div>
+    <div class="shop-look">
+      <div class="row"><h5><small>LOOK {{ suggestion[3] }}</small></h5></div>
+      <div class="row">
+	<div class="col-md-2"></div>
+	<div class="collection col-md-8"><img class="center-block rounded mb-3 mb-md-0" src="static{{ suggestion[1] }}"></div>
+	<div class="col-md-2"></div>
+      </div>
+      <div class="row text-center">
+	<div class="shop-look-product col col-md-auto">
+	  <figure class="figure">
+	    <img class="img-responsive rounded mb-3 mb-md-0" src="{{ suggestion[0] }}">
+	    <figcaption class="figure-caption">Your {{ suggestion[4] }}</figcaption>
+	  </figure>
+	</div>
+	<div class="plus col col-md-auto">
+	  <img  src="/static/plus.png"/>
+	</div>
+	{% for suggested_product in suggestion[2] %}
+	<div class="shop-look-product col col-md-auto">
+	  <figure class="figure">
+	    <img class="img-responsive rounded mb-3 mb-md-0" src="{{ suggested_product['image_url'] }}">
+	    <figcaption class="figure-caption">{{ suggested_product['product_name'] }}</figcaption>
+	  </figure>
+	</div>
+	{% endfor %}
+      </div>
     </div>
     {% endfor %}
   </div>

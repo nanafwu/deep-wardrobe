@@ -122,6 +122,15 @@ def upload_file():
         return redirect(url_for('show_wardrobe'))
 
 
+@app.route("/reset", methods=["GET"])
+def reset_wardrobe():
+    global wardrobe
+    conn = get_db()
+    user_id = '5221de0a-cd0c-45a3-ac66-d1a6339ab446'
+    wardrobe = get_wardrobe_items(conn, user_id)
+    return redirect(url_for('show_wardrobe'))
+
+
 @app.route("/upload", methods=["GET"])
 def show_upload():
     return render_template('upload.html', page='upload')
@@ -160,15 +169,24 @@ def show_styled_suggestions():
 
 @app.route('/shop', methods=['GET'])
 def show_shop():
+    display_name_mapping = rec.map_product_categories()
+
+    valid_combos = rec.get_wardrobe_combinations(wardrobe)
+
     wardrobe_item_info = get_wardrobe_item_info()
     items_to_colls, item_to_prod_ids = rec.get_wardrobe_closest_collections(
         wardrobe, neighbors_model, index_to_prod, prod_to_colls,
         bottom_feature_indexes)
 
+    matching_collections, matched_wardrobe_item_ids = rec.get_sorted_combos(
+        valid_combos, items_to_colls)
+
+    # Exclude items that were already matched
     item_to_missing_prods = rec.suggest_additional_products(
-        items_to_colls, item_to_prod_ids, [],
+        items_to_colls, item_to_prod_ids, matched_wardrobe_item_ids,
         cols_to_prod, product_data)
 
+    look_count = 1
     all_suggested_products = []
     for item_id, closest_coll in item_to_missing_prods.items():
         wardrobe_item = wardrobe_item_info[item_id]
@@ -176,7 +194,6 @@ def show_shop():
         item_category = wardrobe_item['category']
         closest_collection_id = closest_coll[0]
 
-        print('Closest collection: ', closest_collection_id, ', ', item_image_url)
         collection_img = '/images_collections/' + \
                          closest_collection_id + '.jpg'
 
@@ -192,7 +209,9 @@ def show_shop():
                 suggested_products.append(p)
 
         all_suggested_products.append(
-            [item_image_url, collection_img, suggested_products[:3]])
+            [item_image_url, collection_img, suggested_products[:3],
+             look_count, display_name_mapping[item_category]])
+        look_count += 1
 
     return render_template('shop.html', page='shop',
                            suggested_products=all_suggested_products)

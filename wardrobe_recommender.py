@@ -29,6 +29,24 @@ def list_product_categories():
             ('womens-shoes', 'Shoes')]
 
 
+def map_product_categories():
+    return {'womens-tops': 'Top',
+            'jeans': 'Jean',
+            'shorts': 'Shorts',
+            'womens-pants': 'Pants',
+            'skirts': 'Skirt',
+            'dresses': 'Dress',
+            'sweaters': 'Sweater',
+            'sweatshirts': 'Sweatshirt',
+            'jackets': 'Jacket',
+            'womens-outerwear': 'Outerwear',
+            'handbags': 'Handbag',
+            'hats': 'Hat',
+            'jewelry': 'Jewelry',
+            'sunglasses': 'Sunglasses',
+            'womens-shoes': 'Shoes'}
+
+
 def get_product_collections():
     collection_products = db.get_collection_products()
     product_to_collections = defaultdict(set)

@@ -7,19 +7,9 @@ h3 {
     color: #403F4C;
 }
 
-h5 {
+h4 {
     color: #403F4C;
-    margin-top: 15px;
-    margin-bottom: 15px;
-}
-
-.panel {
-    background-color: white;
-     display: inline-block;
-}
-
-.panel h6{
-    padding: 20px 0px 0px 20px;
+    margin: 30px 0px 20px 0px;
 }
 
 img {
@@ -27,8 +17,26 @@ img {
     width: auto;
 }
 
-.collection {
-    align: text-center
+.navbar-brand img {
+    height: 50px;
+    width: auto;
+}
+
+figure {
+  width: -webkit-min-content;
+  width: -moz-min-content;
+  width: min-content;
+}
+
+.shop-look-product img {
+    height: 100px;
+    width: auto;
+}
+
+.plus img {
+    height: 50px;
+    width: auto;
+    margin-top: 20px;
 }
 
 .collection img {
@@ -36,14 +44,10 @@ img {
     width: auto;
 }
 
-.suggested-product img{
-    height: 100px;
-    width: auto;
-    display: inline-block;
-}
 
 .wardrobe_img {
     border-radius: 10%;
+    margin: 0px 10px 0px 0px;
 }
 
 
@@ -54,15 +58,35 @@ img {
 
 .combo .row h5 {
     padding: 5px;
-    margin: 10px 20px 10px 20px;
+    margin: 10px 20px 10px 5px;
     background-color:  #F3E8EE;
 }
 
-.panel {
+
+
+.shop .shop-look {
     margin: 20px 0px 20px 0px;
+    padding: 20px 0px 20px 20px;
+    background-color: white;
 }
 
-.panel-body img {
-    margin: 20px;
+.shop .row {
+    padding-bottom: 10px;
+    margin: 0px;
+}
 
+.figure-caption {
+    font-size: 12px;
+    color: #403F4C;
+}
+
+.shop-look h5 {
+    padding: 5px;
+    background-color:  #F3E8EE;
+}
+
+form {
+    margin: 0px;
+    padding: 0px;
+    height: 100px;
 }
